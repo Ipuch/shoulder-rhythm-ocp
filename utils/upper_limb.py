@@ -217,14 +217,14 @@ class UpperLimbOCP:
         q_ref_homemade = np.zeros((self.biorbd_model.nbQ(), 51))
 
         # frontal plane
-        q_ref_homemade[0, :] = np.linspace(-0.02, -0.21, 51)
-        q_ref_homemade[1, :] = np.linspace(-0.23, 0.09, 51)
-        q_ref_homemade[2, :] = np.linspace(-0.09, 0.15, 51)
-        q_ref_homemade[3, :] = np.linspace(0.13, 0.04, 51)
-        q_ref_homemade[4, :] = np.linspace(0.22, 0.22, 51)
-        q_ref_homemade[5, :] = np.linspace(-0.11, -0.11, 51)
-        q_ref_homemade[6, :] = np.linspace(0.13, 0.70, 51)  # hum elevation
-        q_ref_homemade[7, :] = np.linspace(-0.82, -0.82, 51)
+        q_ref_homemade[0, :] = np.linspace(-0.06, -0.20, 51)
+        q_ref_homemade[1, :] = np.linspace(-0.26, 0.10, 51)
+        q_ref_homemade[2, :] = np.linspace(-0.03, 0.52, 51)
+        q_ref_homemade[3, :] = np.linspace(0.19, 0.12, 51)
+        q_ref_homemade[4, :] = np.linspace(0.27, 0.28, 51)
+        q_ref_homemade[5, :] = np.linspace(0.05, -0.09, 51)
+        q_ref_homemade[6, :] = np.linspace(0.30, 1.18, 51)  # hum elevation
+        q_ref_homemade[7, :] = np.linspace(-0.38, -0.38, 51)
 
         tau_ref_homemade = np.zeros((10, 50))
         qdot_ref_homemade = np.zeros((10, 51))
@@ -287,7 +287,7 @@ class UpperLimbOCP:
         target_conoid = np.repeat(target_value_cor, repeats=self.n_shooting + 1)
         target_trpz = np.repeat(target_value_trpz, repeats=self.n_shooting + 1)
 
-        self.objective_functions.add(ObjectiveFcn.Lagrange.MINIMIZE_STATE, key="q", index=1, weight=0.5)  # tried range2 (doesn't converge), range 5(converges but bad motion)
+        self.objective_functions.add(ObjectiveFcn.Lagrange.MINIMIZE_STATE, key="q", index=1, weight=10)  # tried range2 (doesn't converge), range 5(converges but bad motion)
         self.objective_functions.add(ObjectiveFcn.Lagrange.MINIMIZE_STATE, key="qdot", weight=50)
         self.objective_functions.add(
             ObjectiveFcn.Lagrange.MINIMIZE_STATE, key="qdot", derivative=True, weight=0.5
@@ -297,24 +297,24 @@ class UpperLimbOCP:
             self.objective_functions.add(ObjectiveFcn.Lagrange.MINIMIZE_CONTROL, key="muscles", derivative=True, weight=1500)
         # self.objective_functions.add(ObjectiveFcn.Lagrange.MINIMIZE_CONTROL, key="tau", weight=15)
         self.objective_functions.add(
-            ObjectiveFcn.Lagrange.MINIMIZE_CONTROL, key="tau", index=range(2, self.n_tau), weight=1500  # tried range2, doesn't converge
+            ObjectiveFcn.Lagrange.MINIMIZE_CONTROL, key="tau", index=range(5, self.n_tau), weight=15  # tried range2, doesn't converge
         )
         self.objective_functions.add(
-            ObjectiveFcn.Lagrange.MINIMIZE_CONTROL, key="tau", index=range(2), weight=15)
+            ObjectiveFcn.Lagrange.MINIMIZE_CONTROL, key="tau", index=range(5), weight=1.5)
         self.objective_functions.add(
             ObjectiveFcn.Lagrange.MINIMIZE_CONTROL, key="tau", derivative=True, weight=1500
         )
         self.objective_functions.add(ObjectiveFcn.Mayer.MINIMIZE_STATE, key="qdot", weight=100, node=Node.END)
-        self.objective_functions.add(
-            custom_func_track_position_in_GCS,
-            target=0.7,
-            segment="humerus",
-            thorax_segment="thorax",
-            custom_type=ObjectiveFcn.Mayer,
-            quadratic=True,
-            node=Node.END,
-            weight=10000
-            )
+        # self.objective_functions.add(
+        #     custom_func_track_position_in_GCS,
+        #     target=0.7,
+        #     segment="humerus",
+        #     thorax_segment="thorax",
+        #     custom_type=ObjectiveFcn.Mayer,
+        #     quadratic=True,
+        #     node=Node.END,
+        #     weight=10000
+        #     )
         self.objective_functions.add(
             custom_ligaments_distance,
             first_marker='CLAV_Conoid',
@@ -372,8 +372,8 @@ class UpperLimbOCP:
         self.x_bounds.max[: self.n_q, 0] = self.x_init_ref[: self.n_q, 0]
 
         x_slack_end = 0.15 * np.ones(self.x_init_ref[: self.n_q, -1].shape)
-        self.x_bounds.min[: self.n_q, -1] = self.x_init_ref[: self.n_q, -1] - x_slack_end
-        self.x_bounds.max[: self.n_q, -1] = self.x_init_ref[: self.n_q, -1] + x_slack_end
+        self.x_bounds.min[: self.n_q, -1] = self.x_init_ref[: self.n_q, -1]
+        self.x_bounds.max[: self.n_q, -1] = self.x_init_ref[: self.n_q, -1]
 
         # norm of the quaternion should be 1 at the start and at the end
         if self.biorbd_model.nbQuat() > 0:
