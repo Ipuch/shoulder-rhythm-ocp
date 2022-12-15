@@ -1,18 +1,16 @@
 import numpy as np
 import bioviz
-from scipy import stats
 
 try:
     import biorbd
 except:
     import biorbd_casadi as biorbd
-import os
-import matplotlib.pyplot as plt
+
 import pickle
 
 # load model nb1
 
-file1 = "/home/mickaelbegon/Documents/stage_nicolas/shoulder-rhythm-ocp/humerus_elevation/UpperLimbMuscle_2_lig_200_index_1_0.5_tau_low02_15_and_1500_lever_bras_no_offset_no_slack_all_muscles_derivative_true_1500_1000_qdot_50_new_obj_1.6.pkl"
+file1 = "../datas/UpperLimbMuscle_default_constraint_test_tau_q_test_slack_scap_test.pkl"
 result_mat1 = {}
 with open(file1, "rb") as f:
     while True:

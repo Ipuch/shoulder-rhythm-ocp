@@ -88,19 +88,16 @@ def add_datas_to_plot(abscissa: int, ordinates: np.ndarray, color: str, label: s
                    )
 
 
-q_Clara = get_exp_data_from_pickle("q_exp_Clara.pkl")
+q_Clara = get_exp_data_from_pickle("../datas/q_exp_Etienne.pkl")
 
 q_file_2 = get_created_q_from_pickle(
-    "UpperLimbMuscle_2_lig_200_index_1_10_tau_low05_1.5_and_15_lever_bras_no_offset_no_slack_all_muscles_derivative_true_150000_1500.pkl")
-q_file_3 = get_created_q_from_pickle(
-    "UpperLimbMuscle_2_lig_200_range_2_10_tau_low05_1.5_and_150_lever_bras_no_offset_no_slack_all_muscles_derivative_true_1500_1000.pkl")
+    "../datas/UpperLimbMuscle_default_no_constraint_test_tau150_q100.pkl")
 
 # plot q
 figX, axs = plt.subplots(3, 3)
 
 add_datas_to_plot(q_Clara[6, :], q_Clara, color='b', label="experimental data", axs=axs)
 add_datas_to_plot(q_file_2[6, :], q_file_2, label="file 2", color='g', axs=axs)
-add_datas_to_plot(q_file_3[6, :], q_file_3, label="file 3", color='orange', axs=axs)
 
 axs[0, 0].set_title("clav X")
 
@@ -126,17 +123,11 @@ figX.supxlabel('n_shooting')
 figX.supylabel('angle in degres')
 
 tau_old_and_hum_bounds = get_created_tau_from_pickle(
-    "UpperLimbMuscle_2_lig_200_range_2_10_tau_low05_1.5_and_150_lever_bras_no_offset_no_slack_all_muscles_derivative_true_1500_1000.pkl")
-tau_new_bounds = get_created_tau_from_pickle(
-    "UpperLimbMuscle_2_lig_200_index_1_10_tau_low05_1.5_and_15_lever_bras_no_offset_no_slack_all_muscles_derivative_true_150000_1500.pkl")
-tau_200000 = get_created_tau_from_pickle(
-    "UpperLimbMuscle_2_lig_200_index_1_10_tau_low05_1.5_and_150_lever_bras_no_offset_no_slack_all_muscles_derivative_true_1500_1000.pkl")
+    "../datas/UpperLimbMuscle_default_no_constraint_test_tau150_q100.pkl")
 # figure tau
 figY, bxs = plt.subplots(3, 3)
 
 add_datas_to_plot(tau_old_and_hum_bounds[9, :], tau_old_and_hum_bounds, label="file 2", color='b', axs=bxs)
-add_datas_to_plot(tau_new_bounds[9, :], tau_new_bounds, label="file 3", color='orange', axs=bxs)
-add_datas_to_plot(tau_200000[9, :], tau_200000, label="200000", color='r', axs=bxs)
 
 bxs[0, 0].set_title("clav X")
 bxs[0, 1].set_title("clav Y")
@@ -155,11 +146,7 @@ figY.supxlabel('n_shooting')
 figY.supylabel('tau')
 
 muscles_150000_controles = get_created_muscles_from_pickle(
-    'UpperLimbMuscle_2_lig_200_index_1_10_tau_low05_1.5_and_15_lever_bras_no_offset_no_slack_all_muscles_derivative_true_150000_1500.pkl')
-muscles_1500_controles = get_created_muscles_from_pickle(
-    'UpperLimbMuscle_2_lig_200_index_1_10_tau_low05_1.5_and_150_lever_bras_no_offset_no_slack_all_muscles_derivative_true_1500_1000.pkl')
-muscles_range2_1500_controles = get_created_muscles_from_pickle(
-    "UpperLimbMuscle_2_lig_200_range_2_10_tau_low05_1.5_and_150_lever_bras_no_offset_no_slack_all_muscles_derivative_true_1500_1000.pkl")
+    '../datas/UpperLimbMuscle_default_no_constraint_test_tau150_q100.pkl')
 model = biorbd.Model(
     "/home/mickaelbegon/Documents/stage_nicolas/bioptim_exo/models/wu_converted_definitif_without_floating_base.bioMod")
 if len(muscles_150000_controles) <= 4:
@@ -173,8 +160,6 @@ for i in range(4):
     for j in range(n_column):
         try:
             cxs[i, j].plot(muscles_150000_controles[31, :], muscles_150000_controles[c], label='file1')
-            cxs[i, j].plot(muscles_1500_controles[31, :], muscles_1500_controles[c], label='file2')
-            cxs[i, j].plot(muscles_range2_1500_controles[31, :], muscles_range2_1500_controles[c], label='file3')
             cxs[i, j].set_title(model.muscleNames()[c].to_string())
             cxs[i, j].set_ylim([-0.01, 1.01])
         except:
