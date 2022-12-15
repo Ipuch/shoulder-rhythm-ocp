@@ -1,12 +1,15 @@
 import numpy as np
-from typing import Union
 try:
     import biorbd
 except:
     import biorbd_casadi as biorbd
-from casadi import MX, arccos, arctan2
+from casadi import MX, arccos, arctan2, norm_2, if_else
 from bioptim import Solution
 import pickle
+from bioptim import (
+    PenaltyNodeList,
+    BiorbdInterface
+)
 
 
 def get_starting_conoid_trpz_length(model_path: str = None):
@@ -221,3 +224,75 @@ def euler_to_matrix_interface(euler_angles: list[int, float]):
     matrix_9x1[0:3], matrix_9x1[3:6], matrix_9x1[6:9] = matrix_3x3[:, 0], matrix_3x3[:, 1], matrix_3x3[:, 2]
 
     return matrix_9x1
+
+
+def custom_func_track_position_in_GCS(all_pn: PenaltyNodeList, humerus_segment: str, thorax_segment: str) -> MX:
+    """
+    Gives the angles between the humerus and the thorax. this lets us control the elevation of the humerus
+    by only giving the value of thoraco-humeral elevation.
+    It also lets us give the plane of elevation by changing the rotation index
+    the thoraco-humeral elevation follows the yxy sequence with in order :
+    - Plane of elevation, 0 degrees is abduction, 90 degrees is forward flexion. (index = 0)
+    - elevation (index = 1)
+    - axial rotation, endo- or internal rotation and exo- or external-rotation (index = 2)
+
+    Parameters
+    ----------
+    humerus_segment: str
+        Name of the humerus segment in the bioMod
+    thorax_segment: str
+        Name of the thorax segment in the bioMod
+
+    Returns
+    ----------
+        Each values of the rotation matrix
+    """
+    model = all_pn.nlp.model
+    rotation_matrix_segment_index = biorbd.segment_index(model, humerus_segment)
+    rotation_matrix_thorax_index = biorbd.segment_index(model, thorax_segment)
+    q = all_pn.nlp.states["q"].mx
+    # global JCS gives the local matrix according to the global matrix
+    segment_mx_matrix = all_pn.nlp.model.globalJCS(q, rotation_matrix_segment_index).rot().to_mx()
+    thorax_mx_matrix = all_pn.nlp.model.globalJCS(q, rotation_matrix_thorax_index).rot().to_mx()
+
+    rot_matrix_hum_in_thoraxJCS = thorax_mx_matrix.T @ segment_mx_matrix
+
+    b = MX.zeros(9)
+    b[:] = rot_matrix_hum_in_thoraxJCS[:9]
+    output_casadi = BiorbdInterface.mx_to_cx("scal_prod", b, all_pn.nlp.states["q"])
+
+    return output_casadi
+
+
+def custom_ligaments_distance(all_pn: PenaltyNodeList, first_marker: str, second_marker: str, L_ref: float) -> MX:
+    """
+    Calculates the distance between two markers and maxing it to a value given by L_ref
+
+    Parameters
+    ----------
+    first_marker: str
+        Name of the first marker
+    second_marker: str
+        Name of the second marker
+    L_ref: float
+        Distance of reference the ligament can not excess
+
+    Returns
+    ----------
+        Distance between the two markers
+        """
+
+    marker_0 = biorbd.marker_index(all_pn.nlp.model, first_marker)
+    marker_1 = biorbd.marker_index(all_pn.nlp.model, second_marker)
+
+    markers = all_pn.nlp.model.markers(all_pn.nlp.states["q"].mx)
+    markers_diff = markers[marker_1].to_mx() - markers[marker_0].to_mx()
+    markers_diff = BiorbdInterface.mx_to_cx("markers", markers_diff, all_pn.nlp.states["q"])
+
+    markers_diff_norm = norm_2(markers_diff)
+
+    return if_else(
+        markers_diff_norm > L_ref,
+        markers_diff_norm - L_ref,
+        0
+    )
