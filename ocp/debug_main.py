@@ -15,7 +15,7 @@ def main():
 
     n_threads = 8
     model_path = "../models/wu_converted_definitif_without_floating_base.bioMod"
-    file_name = "../datas/UpperLimbMuscle_default_constraint_test_tau_q_test_slack_scap_test.pkl"
+    file_name = "../simulation_results/MuscleDriven_constraint_with_slack_test.pkl"
     # --- Solve the program --- #
     myocp = UpperLimbOCP(
         biorbd_model_path=model_path,
@@ -23,7 +23,7 @@ def main():
         ode_solver=ode_solver,
         n_threads=n_threads,
         dynamics_fcn=DynamicsFcn.MUSCLE_DRIVEN,
-        slack=1,
+        slack=0.50,
         hum_starting_orientation=[25, 10, 0],
         hum_ending_orientation=[30, 75, 0]
     )

@@ -15,3 +15,4 @@ The "upper_limb" file is the principal file of this repository, where all the oc
 It is in this one that you have to set the problem.
 The "utils" file is the file where you will find all the functions that are used to help set the problem, like custom objectives and dynamics, interface functions, result saving function, ...
 
+The "guided_elevation_results" is the repertory where the pickle of a good-looking animation from a guided elevation of the humerus is stored

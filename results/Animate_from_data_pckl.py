@@ -10,7 +10,7 @@ import pickle
 
 # load model nb1
 
-file1 = "../datas/UpperLimbMuscle_default_constraint_test_tau_q_test_slack_scap_test.pkl"
+file1 = "../simulation_results/MuscleDriven_constraint_with_slack_test.pkl"
 result_mat1 = {}
 with open(file1, "rb") as f:
     while True:

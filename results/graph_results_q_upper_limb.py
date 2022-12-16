@@ -88,31 +88,23 @@ def add_datas_to_plot(abscissa: int, ordinates: np.ndarray, color: str, label: s
                    )
 
 
-q_Clara = get_exp_data_from_pickle("../datas/q_exp_Etienne.pkl")
-
+q_Etienne = get_exp_data_from_pickle("../experimental_datas/q_exp_Etienne.pkl")
 q_file_2 = get_created_q_from_pickle(
-    "../datas/UpperLimbMuscle_default_no_constraint_test_tau150_q100.pkl")
+    "../simulation_results/MuscleDriven_constraint_with_slack_test.pkl")
 
 # plot q
 figX, axs = plt.subplots(3, 3)
 
-add_datas_to_plot(q_Clara[6, :], q_Clara, color='b', label="experimental data", axs=axs)
+add_datas_to_plot(q_Etienne[6, :], q_Etienne, color='b', label="experimental data", axs=axs)
 add_datas_to_plot(q_file_2[6, :], q_file_2, label="file 2", color='g', axs=axs)
 
 axs[0, 0].set_title("clav X")
-
 axs[0, 1].set_title("clav Y")
-
 axs[0, 2].set_title("scap X")
-
 axs[1, 0].set_title("scap Y")
-
 axs[1, 1].set_title("scap Z")
-
 axs[1, 2].set_title("shoulder plan X")
-
 axs[2, 0].set_title("shoulder ele Y")
-
 axs[2, 1].set_title("shoulder rot Z")
 
 figX.legend(loc="lower right",  # Position of legend
@@ -123,7 +115,7 @@ figX.supxlabel('n_shooting')
 figX.supylabel('angle in degres')
 
 tau_old_and_hum_bounds = get_created_tau_from_pickle(
-    "../datas/UpperLimbMuscle_default_no_constraint_test_tau150_q100.pkl")
+    "../simulation_results/MuscleDriven_constraint_with_slack_test.pkl")
 # figure tau
 figY, bxs = plt.subplots(3, 3)
 
@@ -146,9 +138,9 @@ figY.supxlabel('n_shooting')
 figY.supylabel('tau')
 
 muscles_150000_controles = get_created_muscles_from_pickle(
-    '../datas/UpperLimbMuscle_default_no_constraint_test_tau150_q100.pkl')
+    '../simulation_results/MuscleDriven_constraint_with_slack_test.pkl')
 model = biorbd.Model(
-    "/home/mickaelbegon/Documents/stage_nicolas/bioptim_exo/models/wu_converted_definitif_without_floating_base.bioMod")
+    "/home/mickaelbegon/Documents/stage_nicolas/shoulder-rhythm-ocp/models/wu_converted_definitif_without_floating_base.bioMod")
 if len(muscles_150000_controles) <= 4:
     n_column = 1
 else:

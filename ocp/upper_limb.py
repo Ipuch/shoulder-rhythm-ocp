@@ -181,18 +181,21 @@ class UpperLimbOCP:
         # Reduces the movements of the scapula and the clavicle, in order to keep a physiological look-alike movement
         self.objective_functions.add(ObjectiveFcn.Lagrange.MINIMIZE_STATE, key="q", index=1, weight=10)
         # tried :
+        # best for guided movement is index = 1, weight = 10
         # range2 (doesn't converge)
         # range 5(converges but bad motion)
         # with constraint, works with range 5, weight of 0.1
 
         # MINIMIZE QDOT
         # restricts the speed of the movements to be realistic and have a full frame movement
+        # best for guided movement is weight = 50, weight = 0.5
         self.objective_functions.add(ObjectiveFcn.Lagrange.MINIMIZE_STATE, key="qdot", weight=50)
         self.objective_functions.add(
             ObjectiveFcn.Lagrange.MINIMIZE_STATE, key="qdot", derivative=True, weight=0.5
         )  # added
 
         # MINIMIZE MUSCLE ACTIVATIONS
+        # best for guided movement is weight = 1000, weight = 15000
         if self.dynamics.type == DynamicsFcn.MUSCLE_DRIVEN:
             self.objective_functions.add(ObjectiveFcn.Lagrange.MINIMIZE_CONTROL, key="muscles", weight=1000)
             self.objective_functions.add(ObjectiveFcn.Lagrange.MINIMIZE_CONTROL, key="muscles", derivative=True, weight=1500)
@@ -200,6 +203,7 @@ class UpperLimbOCP:
         # MINIMIZE TAU
         # Minimize the tau separately on the first 5 DDL and the rest. Play with these to correct the scapula's sag
         # and at the same time have realistic values of tau.
+        # best for guided movement is index=range(5, self.n_tau), weight=15, index=range(5), weight=1.5
         self.objective_functions.add(
             ObjectiveFcn.Lagrange.MINIMIZE_CONTROL, key="tau", index=range(5, self.n_tau), weight=15  # tried range2, doesn't converge
         )
@@ -208,16 +212,18 @@ class UpperLimbOCP:
 
         # MINIMIZE TAU DERIVATIVE TRUE
         # restricts the changes from one moment to the next one to have better continuity
+        # untouched yet for the determination of the best combinations of objectives and constraints
         self.objective_functions.add(
             ObjectiveFcn.Lagrange.MINIMIZE_CONTROL, key="tau", derivative=True, weight=1500
         )
 
         # MINIMIZE QDOT MAYER
+        # untouched yet for the determination of the best combinations of objectives and constraints
         self.objective_functions.add(ObjectiveFcn.Mayer.MINIMIZE_STATE, key="qdot", weight=100, node=Node.END)
 
         # CUSTOM OBJ
         # custom objectives to simulate the 2 claviculo-scapular ligaments
-
+        # weight = 200 is the one that works good for all tries but might need to be changed
         target_conoid, target_trpz = get_target(self.biorbd_model_path, self.n_shooting + 1)
         self.objective_functions.add(
             custom_ligaments_distance,
@@ -271,21 +277,21 @@ class UpperLimbOCP:
         # These two constraints are here to control the starting and ending point of the elevation
         # self.constraints.add(
         #     custom_func_track_position_in_GCS,
-        #     target=self.humerus_starting_elevation,
+        #     min_bound=self.humerus_starting_elevation - 0.1,
+        #     max_bound=self.humerus_starting_elevation + 0.1,
         #     humerus_segment="humerus",
         #     thorax_segment="thorax",
         #     quadratic=True,
         #     node=Node.START,
-        #     weight=2000,
         #     )
         # self.constraints.add(
         #     custom_func_track_position_in_GCS,
-        #     target=self.humerus_ending_elevation,
+        #     min_bound=self.humerus_ending_elevation - 0.1,
+        #     max_bound=self.humerus_ending_elevation + 0.1,
         #     humerus_segment="humerus",
         #     thorax_segment="thorax",
         #     quadratic=True,
         #     node=Node.END,
-        #     weight=2000,
         # )
 
     def _set_initial_guesses(self):
@@ -316,23 +322,23 @@ class UpperLimbOCP:
         q_ref_end = np.zeros((self.biorbd_model.nbQ()))
 
         # frontal plane
-        q_ref_start[0] = -0.06  # clavicle retraction
-        q_ref_start[1] = -0.26  # clavicle elevation
-        q_ref_start[2] = -0.03  # scapula y rotation
-        q_ref_start[3] = 0.19  # scapula x rotation
-        q_ref_start[4] = 0.27  # scapula z rotation
-        q_ref_start[5] = 0.05  # 0.05 for frontal, 0.20 for scap plane, 1.35/40 for sagittal + other mods
-        q_ref_start[6] = 0.30  # hum elevation
-        q_ref_start[7] = 0  # humerus intern rotation
+        q_ref_start[0] = -0.02  # clavicle retraction
+        q_ref_start[1] = -0.23  # clavicle elevation
+        q_ref_start[2] = -0.09  # scapula y rotation
+        q_ref_start[3] = 0.13  # scapula x rotation
+        q_ref_start[4] = 0.22  # scapula z rotation
+        q_ref_start[5] = -0.57  # 0.05 for frontal, 0.20 for scap plane, 1.35/40 for sagittal + other mods
+        q_ref_start[6] = 0.13  # hum elevation
+        q_ref_start[7] = 0.06  # humerus intern rotation
 
-        q_ref_end[0] = -0.20  # clavicle retraction
-        q_ref_end[1] = 0.10  # clavicle elevation
-        q_ref_end[2] = 0.52  # scapula y rotation
-        q_ref_end[3] = 0.12  # scapula x rotation
-        q_ref_end[4] = 0.28  # scapula z rotation
-        q_ref_end[5] = -0.09  # 0.05 for frontal, 0.20 for scap plane, 1.35/40 for sagittal + other mods
-        q_ref_end[6] = 0.7  # hum elevation
-        q_ref_end[7] = 0  # humerus intern rotation
+        q_ref_end[0] = -0.21  # clavicle retraction
+        q_ref_end[1] = 0.09  # clavicle elevation
+        q_ref_end[2] = 0.15  # scapula y rotation
+        q_ref_end[3] = 0.04  # scapula x rotation
+        q_ref_end[4] = 0.21  # scapula z rotation
+        q_ref_end[5] = -0.11  # 0.05 for frontal, 0.20 for scap plane, 1.35/40 for sagittal + other mods
+        q_ref_end[6] = 0.65  # hum elevation
+        q_ref_end[7] = -0.82  # humerus intern rotation
 
         q_ref_homemade = np.concatenate([[q_ref_start], [q_ref_end]], axis=0)
 

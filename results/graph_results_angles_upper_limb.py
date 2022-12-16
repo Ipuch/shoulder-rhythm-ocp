@@ -27,7 +27,7 @@ def get_created_data_from_pickle(file: str):
             except:
                 break
     datas = data_tmp["states"]["q"][:9, :]
-    # datas = data_tmp
+    # experimental_datas = data_tmp
     return datas
 
 
@@ -169,9 +169,9 @@ def add_datas_to_plot(abscissa: np.ndarray, values: dict, color: str, label: str
 
 
 # get data from pickle files
-data_Clara = get_exp_data_from_pickle("../datas/q_exp_Etienne.pkl")
+data_Clara = get_exp_data_from_pickle("../experimental_datas/q_exp_Etienne.pkl")
 data_file_1 = get_created_data_from_pickle(
-    "../datas/UpperLimbMuscle_default_no_constraint_test_tau150_q100.pkl")
+    "../experimental_datas/UpperLimbMuscle_default_no_constraint_test_tau150_q100.pkl")
 
 model = biorbd.Model(
     "/home/mickaelbegon/Documents/stage_nicolas/bioptim_exo/models/wu_converted_definitif_without_floating_base.bioMod")

@@ -2,7 +2,7 @@
 This scripts does an elevation of the humerus in a chosen plane. Default plane is scapular plane.
 To change it, change the 'hum_plane_angle' value.
 
-The results are saved in the datas repertory. You can choose the name of the file by changing 'file_name'.
+The results are saved in the experimental_datas repertory. You can choose the name of the file by changing 'file_name'.
 
 You can choose the starting and ending angles of the humerus elevation. Default values are 0.3 to 0.8 radiant
 To change it, change the 'hum_start_elevation' and 'hum_final_elevation' values.
@@ -27,7 +27,7 @@ def main():
 
     n_threads = 8
     model_path = "../models/wu_converted_definitif_without_floating_base.bioMod"
-    file_name = "../datas/UpperLimbMuscle_default_constraint_test_tau_q_test_slack_scap_test.pkl"
+    file_name = "../experimental_datas/MuscleDriven_default_guided_without_constraint.pkl"
     # --- Solve the program --- #
     myocp = UpperLimbOCP(
         biorbd_model_path=model_path,

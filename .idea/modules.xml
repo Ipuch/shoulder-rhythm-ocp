@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/../bioptim/.idea/bioptim.iml" filepath="$PROJECT_DIR$/../bioptim/.idea/bioptim.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../bioptim_exo/.idea/bioptim_exo.iml" filepath="$PROJECT_DIR$/../bioptim_exo/.idea/bioptim_exo.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/shoulder-rhythm-ocp.iml" filepath="$PROJECT_DIR$/.idea/shoulder-rhythm-ocp.iml" />
     </modules>
   </component>
